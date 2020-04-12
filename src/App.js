@@ -1,26 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component }  from 'react';
+import axios from 'axios';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    todos: []
+  };
+
+  componentDidMount() {
+    axios.get(`https://www.googleapis.com/youtube/v3/playlists?part=snippet%2CcontentDetails&channelId=UCdL_mXnwxBxVSHBnkoXaIbQ&maxResults=25&key=AIzaSyCQ4TYDAsSyu9jDTcwG3rxPu_JgOIEuZ8s`)
+      .then(res => console.log(res))
+  }
+
+  render() {
+    return (
+
+        <div className="App">
+          <div className="container">
+            <div>hello world</div>
+          </div>
+        </div>
+
+    );
+  }
 }
 
 export default App;
