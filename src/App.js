@@ -10,9 +10,9 @@ class App extends Component {
     playlists: [],
     selectedPlayListItems: [],
     playlistSelected: false,
-    apiKey: "AIzaSyCQ4TYDAsSyu9jDTcwG3rxPu_JgOIEuZ8s",
-    userId: "dL_mXnwxBxVSHBnkoXaIbQ",
-    channelId: "UCdL_mXnwxBxVSHBnkoXaIbQ"
+    apiKey: process.env.API_KEY,
+    userId: process.env.USER_ID,
+    channelId: process.env.CHANNEL_ID,
   };
 
   componentDidMount() {
