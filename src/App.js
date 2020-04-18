@@ -10,9 +10,9 @@ class App extends Component {
     playlists: [],
     selectedPlayListItems: [],
     playlistSelected: false,
-    apiKey: process.env.API_KEY,
-    userId: process.env.USER_ID,
-    channelId: process.env.CHANNEL_ID,
+    apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
+    userId: process.env.REACT_APP_USER_ID,
+    channelId: process.env.REACT_APP_CHANNEL_ID,
   };
 
   componentDidMount() {
@@ -20,7 +20,7 @@ class App extends Component {
   }
 
   getUserPlaylists() {
-    axios.get(`https://www.googleapis.com/youtube/v3/playlists?part=snippet%2CcontentDetails&channelId=UCdL_mXnwxBxVSHBnkoXaIbQ&maxResults=25&key=${this.state.apiKey}`)
+    axios.get(`https://www.googleapis.com/youtube/v3/playlists?part=snippet%2CcontentDetails&channelId=${this.state.channelId}&maxResults=25&key=${this.state.apiKey}`)
     .then(response => this.setState({ playlists: response.data.items.map((item) => ({
       id: item.id,
       title: item.snippet.title,
@@ -30,24 +30,33 @@ class App extends Component {
 
   getSelectedPlaylistItems(selectedPlayListId) {
     axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails%2Csnippet&maxResults=50&playlistId=${selectedPlayListId}&key=${this.state.apiKey}`)
-    .then(response => this.setState({ selectedPlayListItems: response.data.items.map(async(item) => ({
-      id: item.contentDetails.videoId,
-      title: item.snippet.title,
-      thumbnail: item.snippet.thumbnails.default.url,
-      duration: await this.getVideoDuration(item.contentDetails.videoId)
-    }))}))
+    .then(res => res.data.items)
+    .then(items => {
+      const promises = items.map(async item => {
+        return {
+         id: item.contentDetails.videoId,
+         title: item.snippet.title,
+         thumbnail: item.snippet.thumbnails.default.url,
+         duration: await this.getVideoDuration(item.contentDetails.videoId)
+        }
+      });
+      
+      // Waits for all promises above to resolve before returning data
+      Promise.all(promises)
+      .then(actualData => {
+        // Set the state
+        this.setState({ selectedPlayListItems: actualData})
+      })
+    });
   }
-
-  async getVideoDuration(videoId) {
-    let value = null
-    axios.get(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${this.state.apiKey}`)
-    .then(async(response) => { value = await response.data.items[0].contentDetails.duration } )
-    return value
+  
+  getVideoDuration(videoId) {
+    const posts = axios.get(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${this.state.apiKey}`)
+    .then(data => data.data.items[0].contentDetails.duration);
+    return posts;
   }
 
   render() {
-    console.log(this.state.selectedPlayListItems[0])
-
     return (
         <div className="App">
           <div className="container">
