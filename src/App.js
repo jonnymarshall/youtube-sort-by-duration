@@ -2,7 +2,7 @@ import React, { Component }  from 'react';
 import axios from 'axios';
 import './App.css';
 import ItemsList from './components/ItemsList'
-import Card from './components/Card'
+import VideoEmbed from './components/VideoEmbed'
 import PlaylistVideos from './components/PlaylistVideos'
 
 class App extends Component {
@@ -58,27 +58,24 @@ class App extends Component {
 
   render() {
     return (
-        <div className="App">
-          <div className="container">
-            {this.state.playlists &&
-            <ItemsList
-              key="1"
-              type="playlistList"
-              items={this.state.playlists}
-              onClick={this.getSelectedPlaylistItems.bind(this)}
-              buttonAction="View videos">
-            </ItemsList>
-            }
-            {this.state.selectedPlayListItems.length > 0 &&            
-            <ItemsList
+      <div className="App">
+        <div className="container">
+          {this.state.playlists &&
+          <ItemsList
+            key="1"
+            items={this.state.playlists}
+            onClick={this.getSelectedPlaylistItems.bind(this)}>
+          </ItemsList>
+          }
+          {this.state.selectedPlayListItems.length > 0 && this.state.selectedPlayListItems.map((item) =>          
+            <VideoEmbed
               key="2"
-              type="playlistVideosList"
-              items={this.state.selectedPlayListItems}
-              buttonAction="View video">
-            </ItemsList>
-            }
-          </div>
+              item={item}>
+            </VideoEmbed>
+          )
+          }
         </div>
+      </div>
     );
   }
 }

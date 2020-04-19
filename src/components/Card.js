@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 
 export default class Card extends Component {
   render() {
-    // console.log(this.props)
     const { title, duration, thumbnail } = this.props
     return (
       <div>
