@@ -6,6 +6,7 @@ import VideoEmbed from './components/VideoEmbed'
 import PlaylistVideos from './components/PlaylistVideos'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import styled from 'styled-components'
+import videoEmbed from './components/VideoEmbed'
 
 
 
@@ -17,6 +18,7 @@ class App extends Component {
     apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
     userId: process.env.REACT_APP_USER_ID,
     channelId: process.env.REACT_APP_CHANNEL_ID,
+    playlistSearch: ""
   };
 
   componentDidMount() {
@@ -62,7 +64,12 @@ class App extends Component {
     return posts;
   }
 
+  handleChange(event) {
+    this.setState({playlistSearch: event.target.value});
+  }
+
   render() {
+    this.handleChange = this.handleChange.bind(this);
     return (
       <div className="App">
         <div className="container">
@@ -73,6 +80,13 @@ class App extends Component {
             <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
             <a className="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
           </div>
+          <input
+            class="form-control form-control-lg"
+            type="text" placeholder="Search playlists..."
+            onChange={this.handleChange}
+            value={this.state.playlistSearch}
+          >
+          </input>
           <div className="row row-cols-4">
             {this.state.playlists &&
             <ItemsList
@@ -82,6 +96,18 @@ class App extends Component {
             </ItemsList>
             }
           </div>
+
+          {this.state.selectedPlayListItems.length > 0 &&   
+          <div class="row">
+            <div class="col-8 offset-2 border bg-light">
+              <VideoEmbed
+                  key="x"
+                  item={this.state.selectedPlayListItems[0]}>
+              </VideoEmbed>
+            </div>
+          </div>
+          }
+
           <div className="row row-cols-4">
             {this.state.selectedPlayListItems.length > 0 && this.state.selectedPlayListItems.map((item) =>          
               <VideoEmbed
