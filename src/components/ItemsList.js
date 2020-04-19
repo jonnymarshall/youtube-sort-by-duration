@@ -8,19 +8,20 @@ export default class ItemsList extends Component {
     // console.log(this.props)
     const { items, onClick } = this.props
     return (
-      <div>
-        {items && items.map((item) => 
-          <React.Fragment>
+      <React.Fragment>
+        {items && items.map((item) =>
+        <>
             <Card
               key={item.id}
+              id={item.id}
               title={item.title}
               thumbnail={item.thumbnail}
               duration={item.duration}
+              onClick={onClick}
             ></Card>
-            <button onClick={() => onClick(item.id)}>Get videos</button>
-          </React.Fragment>
+          </>
         )}
-      </div>
+      </React.Fragment>
     )
   }
 }

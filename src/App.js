@@ -4,6 +4,10 @@ import './App.css';
 import ItemsList from './components/ItemsList'
 import VideoEmbed from './components/VideoEmbed'
 import PlaylistVideos from './components/PlaylistVideos'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import styled from 'styled-components'
+
+
 
 class App extends Component {
   state = {
@@ -24,7 +28,8 @@ class App extends Component {
     .then(response => this.setState({ playlists: response.data.items.map((item) => ({
       id: item.id,
       title: item.snippet.title,
-      thumbnail: item.snippet.thumbnails.default.url
+      thumbnail: item.snippet.thumbnails.medium.url,
+      active: false
     })) }))
   }
 
@@ -36,8 +41,9 @@ class App extends Component {
         return {
          id: item.contentDetails.videoId,
          title: item.snippet.title,
-         thumbnail: item.snippet.thumbnails.default.url,
-         duration: await this.getVideoDuration(item.contentDetails.videoId)
+         thumbnail: item.snippet.thumbnails.medium.url,
+         duration: await this.getVideoDuration(item.contentDetails.videoId),
+         active: false
         }
       });
       
@@ -60,20 +66,31 @@ class App extends Component {
     return (
       <div className="App">
         <div className="container">
-          {this.state.playlists &&
-          <ItemsList
-            key="1"
-            items={this.state.playlists}
-            onClick={this.getSelectedPlaylistItems.bind(this)}>
-          </ItemsList>
-          }
-          {this.state.selectedPlayListItems.length > 0 && this.state.selectedPlayListItems.map((item) =>          
-            <VideoEmbed
-              key="2"
-              item={item}>
-            </VideoEmbed>
-          )
-          }
+          <div className="jumbotron">
+            <h1 className="display-4">Welcome to YouTubeByDuration!</h1>
+            <p className="lead">Finally, a way to sort your YouTube playlists by duration for that perfectly timed binge!</p>
+            <hr className="my-4"></hr>
+            <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+            <a className="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+          </div>
+          <div className="row row-cols-4">
+            {this.state.playlists &&
+            <ItemsList
+              key="1"
+              items={this.state.playlists}
+              onClick={this.getSelectedPlaylistItems.bind(this)}>
+            </ItemsList>
+            }
+          </div>
+          <div className="row row-cols-4">
+            {this.state.selectedPlayListItems.length > 0 && this.state.selectedPlayListItems.map((item) =>          
+              <VideoEmbed
+                key="2"
+                item={item}>
+              </VideoEmbed>
+            )
+            }
+          </div>
         </div>
       </div>
     );
