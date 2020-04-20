@@ -12,9 +12,10 @@ import PlayListFilter from './components/PlaylistFilter'
 
 class App extends Component {
   state = {
-    playlists: [],
+    playlists: null,
     filteredPlayLists: null,
-    selectedPlayListItems: [],
+    selectedPlaylist: null,
+    selectedPlayListItems: null,
     apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
     userId: process.env.REACT_APP_USER_ID,
     channelId: process.env.REACT_APP_CHANNEL_ID,
@@ -36,6 +37,16 @@ class App extends Component {
   }
 
   getSelectedPlaylistItems(selectedPlayListId) {
+    let playlists = [...this.state.playlists]
+    playlists.map((playlist) => {
+      playlist.active = false
+      if (playlist.id === selectedPlayListId) {
+        playlist.active = !playlist.active
+        this.setState({selectedPlaylist: playlist})
+      }
+    })
+    this.setState({playlists})
+    
     axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails%2Csnippet&maxResults=50&playlistId=${selectedPlayListId}&key=${this.state.apiKey}`)
     .then(res => res.data.items)
     .then(items => {
@@ -73,9 +84,20 @@ class App extends Component {
     this.setState({filteredPlayLists: this.state.playlists.filter(item => item.title.toLowerCase().includes(`${this.state.playlistSearch}`))});
   }
 
+  resetSelections() {
+    this.setState({
+      selectedPlaylist: null,
+      filteredPlayLists: null,
+      selectedPlayListItems: null
+    })
+    
+  }
+
   render() {
-    this.handleChange = this.handleChange.bind(this);
-    this.getSelectedPlaylistItems = this.getSelectedPlaylistItems.bind(this)
+    const handleChange = this.handleChange.bind(this);
+    const getSelectedPlaylistItems = this.getSelectedPlaylistItems.bind(this)
+    const resetSelections = this.resetSelections.bind(this)
+    console.log(this.state)
     return (
       <div className="App">
         <div className="container">
@@ -86,32 +108,47 @@ class App extends Component {
             <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
             <a className="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
           </div>
+
           
-          <PlayListFilter
-            onChange={this.handleChange}
-            value={this.state.playlistSearch}
-          />
+          <nav aria-label="breadcrumb">
+            <ol className="breadcrumb">
+              <li className="breadcrumb-item"><a href="#" onClick={resetSelections}>My playlists</a></li>
+              {this.state.selectedPlaylist &&
+                <li className="breadcrumb-item"><a href="#">{this.state.selectedPlaylist.title}</a></li>
+              }
+              {/* <li class="breadcrumb-item active" aria-current="page">Data</li> */}
+            </ol>
+          </nav>
 
-          <div className="row row-cols-4">
-            {this.state.filteredPlayLists ? 
-              <ItemsList
-                key="1"
-                items={this.state.filteredPlayLists}
-                onClick={this.getSelectedPlaylistItems}>
-              </ItemsList> :
-              <ItemsList
-                key="1"
-                items={this.state.playlists}
-                onClick={this.getSelectedPlaylistItems}>
-              </ItemsList>
-            }
-          </div>
+          {!this.state.selectedPlaylist &&
+          <>
+            <PlayListFilter
+              onChange={handleChange}
+              value={this.state.playlistSearch}
+            />
+            <div className="row row-cols-4">
+              {this.state.filteredPlayLists ? 
+                <ItemsList
+                  key="1"
+                  items={this.state.filteredPlayLists}
+                  onClick={getSelectedPlaylistItems}>
+                </ItemsList> :
+                <ItemsList
+                  key="1"
+                  items={this.state.playlists}
+                  onClick={getSelectedPlaylistItems}>
+                </ItemsList>
+              }
+            </div>
+          </>
+          }
 
-          {this.state.selectedPlayListItems.length > 0 &&   
+          {this.state.selectedPlayListItems &&   
           <div className="row">
-            <div className="col-8 offset-2 border bg-light">
+            <div className="col-10 offset-1 border bg-light">
               <VideoEmbed
                   key="x"
+                  size="large"
                   item={this.state.selectedPlayListItems[0]}>
               </VideoEmbed>
             </div>
@@ -119,9 +156,10 @@ class App extends Component {
           }
 
           <div className="row row-cols-4">
-            {this.state.selectedPlayListItems.length > 0 && this.state.selectedPlayListItems.map((item) =>          
+            {this.state.selectedPlayListItems && this.state.selectedPlayListItems.map((item) =>          
               <VideoEmbed
                 key="2"
+                size="small"
                 item={item}>
               </VideoEmbed>
             )

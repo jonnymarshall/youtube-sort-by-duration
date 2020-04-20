@@ -3,14 +3,15 @@ import moment from 'moment'
 import styled from 'styled-components'
 
 const VideoEmbedItem = styled.div `
-  max-width: 100%;
-  max-height: 100%;
+  /* width: 100%;
+  height: 400px; */
 `
 
 export default class VideoEmbed extends Component {
   
   render() {
-    const { item } = this.props
+    const { item, size } = this.props
+    const height = (size === "large") ? "400px" : "100%"
     return (
       <VideoEmbedItem className="col py-2 px-lg-2 border bg-light">
         <iframe
@@ -22,6 +23,8 @@ export default class VideoEmbed extends Component {
           allowFullScreen="true"
           webkitallowfullscreen="true"
           mozallowfullscreen="true"
+          height={height}
+          width="100%"
           >
         </iframe>
       </VideoEmbedItem>
