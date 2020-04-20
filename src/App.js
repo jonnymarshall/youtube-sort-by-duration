@@ -8,19 +8,25 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import styled from 'styled-components'
 import Filter from './components/Filter'
 import Breadcrumb from './components/Breadcrumb'
+import Jumbotron from './components/Jumbotron'
+import ActiveVideo from './components/ActiveVideo'
 
 
 
 class App extends Component {
   state = {
-    playlists: null,
-    filteredPlayLists: null,
-    selectedPlaylist: null,
-    selectedPlayListItems: null,
-    filteredVideos: null,
     apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
     userId: process.env.REACT_APP_USER_ID,
     channelId: process.env.REACT_APP_CHANNEL_ID,
+    ///
+    playlists: null,
+    filteredPlayLists: null,
+    selectedPlaylist: null,
+    ///
+    playlistVideos: null,
+    filteredVideos: null,
+    selectedVideo: null,
+    ///
     playlistSearch: "",
     videoSearch: ""
   };
@@ -39,7 +45,8 @@ class App extends Component {
     })) }))
   }
 
-  getSelectedPlaylistItems(selectedPlayListId) {
+  getplaylistVideos(selectedPlayListId) {
+    
     let playlists = [...this.state.playlists]
     playlists.map((playlist) => {
       playlist.active = false
@@ -50,13 +57,17 @@ class App extends Component {
     })
     this.setState({playlists})
     
+    console.log("entered getplaylistVideos")
+
     axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails%2Csnippet&maxResults=50&playlistId=${selectedPlayListId}&key=${this.state.apiKey}`)
     .then(res => res.data.items)
+    // .then(items => console.log(items))
     .then(items => {
       const promises = items.map(async item => {
         return {
          id: item.contentDetails.videoId,
          title: item.snippet.title,
+         description: item.snippet.description,
          thumbnail: item.snippet.thumbnails.medium.url,
          duration: await this.getVideoDuration(item.contentDetails.videoId),
          active: false
@@ -67,7 +78,7 @@ class App extends Component {
       Promise.all(promises)
       .then(finalData => {
         // Set the state
-        this.setState({ selectedPlayListItems: finalData})
+        this.setState({ playlistVideos: finalData})
       })
     });
   }
@@ -85,14 +96,14 @@ class App extends Component {
 
   async filterVideos(event) {
     await this.setState({videoSearch: event.target.value});
-    this.setState({filteredVideos: this.state.selectedPlayListItems.filter(item => item.title.toLowerCase().includes(`${this.state.videoSearch}`))});
+    this.setState({filteredVideos: this.state.playlistVideos.filter(item => item.title.toLowerCase().includes(`${this.state.videoSearch}`))});
   }
 
   resetSelections() {
     this.setState({
       selectedPlaylist: null,
       filteredPlayLists: null,
-      selectedPlayListItems: null
+      playlistVideos: null
     })
     
   }
@@ -100,19 +111,15 @@ class App extends Component {
   render() {
     const filterPlaylists = this.filterPlaylists.bind(this);
     const filterVideos = this.filterVideos.bind(this);
-    const getSelectedPlaylistItems = this.getSelectedPlaylistItems.bind(this)
+    const getplaylistVideos = this.getplaylistVideos.bind(this)
     const resetSelections = this.resetSelections.bind(this)
+    const videos = this.state.filteredVideos ? this.state.filteredVideos : this.state.playlistVideos
+    const playlists = this.state.filteredPlayLists ? this.state.filteredPlayLists : this.state.playlists
     console.log(this.state)
     return (
       <div className="App">
         <div className="container">
-          <div className="jumbotron">
-            <h1 className="display-4">Welcome to YouTubeByDuration!</h1>
-            <p className="lead">Finally, a way to sort your YouTube playlists by duration for that perfectly timed binge!</p>
-            <hr className="my-4"></hr>
-            <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-            <a className="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
-          </div>
+          <Jumbotron />
 
           <Breadcrumb
             selectedPlaylist={this.state.selectedPlaylist}
@@ -120,30 +127,25 @@ class App extends Component {
           />
 
           {!this.state.selectedPlaylist &&
-          <>
-            <Filter
-              onChange={filterPlaylists}
-              value={this.state.playlistSearch}
-              placeholder="Search playlists"
-            />
-            <div className="row row-cols-4">
-              {this.state.filteredPlayLists ? 
-                <ItemsList
-                  key="1"
-                  items={this.state.filteredPlayLists}
-                  onClick={getSelectedPlaylistItems}>
-                </ItemsList> :
-                <ItemsList
-                  key="1"
-                  items={this.state.playlists}
-                  onClick={getSelectedPlaylistItems}>
-                </ItemsList>
-              }
-            </div>
-          </>
+            <>
+              <Filter
+                onChange={filterPlaylists}
+                value={this.state.playlistSearch}
+                placeholder="Search playlists"
+              />
+              <div className="row row-cols-4">
+                {playlists &&
+                  <ItemsList
+                    key="1"
+                    items={playlists}
+                    onClick={getplaylistVideos}>
+                  </ItemsList>
+                }
+              </div>
+            </>
           }
 
-          {this.state.selectedPlayListItems &&
+          {this.state.playlistVideos &&
           <>
             <Filter
               onChange={filterVideos}
@@ -152,26 +154,25 @@ class App extends Component {
             />
             <div className="row">
               <div className="col-10 offset-1 border bg-light">
-                <VideoEmbed
+                <ActiveVideo
                     key="x"
                     size="large"
-                    item={this.state.selectedPlayListItems[0]}>
-                </VideoEmbed>
+                    item={this.state.playlistVideos[0]}>
+                </ActiveVideo>
               </div>
             </div>
           </>
           }
 
-          <div className="row row-cols-4">
-            {this.state.selectedPlayListItems && this.state.selectedPlayListItems.map((item) =>          
+          <ul className="list-unstyled">
+            {videos && videos.map((item) =>   
               <VideoEmbed
                 key="2"
                 size="small"
                 item={item}>
-              </VideoEmbed>
-            )
-            }
-          </div>
+              </VideoEmbed> 
+            )}
+          </ul>
         </div>
       </div>
     );

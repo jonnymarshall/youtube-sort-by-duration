@@ -2,19 +2,21 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import styled from 'styled-components'
 
-const VideoEmbedItem = styled.div `
-  /* width: 100%;
-  height: 400px; */
-`
-
 export default class VideoEmbed extends Component {
   
   render() {
     const { item, size } = this.props
     const height = (size === "large") ? "400px" : "100%"
     return (
-      <VideoEmbedItem className="col py-2 px-lg-2 border bg-light">
-        <iframe
+      <>
+        <li class="media">
+          <img src={item.thumbnail} class="mr-3" alt="..."></img>
+          <div class="media-body">
+            <h5 class="mt-0 mb-1">{item.title}</h5>
+              {item.description}
+          </div>
+        </li>
+        {/* <iframe
           key={item.id}
           duration={moment.duration(item.duration).asMilliseconds()}
           src={`https://www.youtube.com/embed/${item.id}`}
@@ -26,8 +28,8 @@ export default class VideoEmbed extends Component {
           height={height}
           width="100%"
           >
-        </iframe>
-      </VideoEmbedItem>
+        </iframe> */}
+      </>
     )
   }
 }
