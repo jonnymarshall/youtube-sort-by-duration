@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 
-export default class PlaylistFilter extends Component {
+export default class Filter extends Component {
   render() {
-    const {onChange, playlistSearch} = this.props
+    const {onChange, playlistSearch, placeholder} = this.props
     return (
       <>
         <input
             className="form-control form-control-lg"
-            type="text" placeholder="Search playlists..."
+            type="text" placeholder={placeholder}
             onChange={onChange}
             value={playlistSearch}
           >

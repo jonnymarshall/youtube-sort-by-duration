@@ -6,7 +6,8 @@ import VideoEmbed from './components/VideoEmbed'
 import PlaylistVideos from './components/PlaylistVideos'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import styled from 'styled-components'
-import PlayListFilter from './components/PlaylistFilter'
+import Filter from './components/Filter'
+import Breadcrumb from './components/Breadcrumb'
 
 
 
@@ -16,10 +17,12 @@ class App extends Component {
     filteredPlayLists: null,
     selectedPlaylist: null,
     selectedPlayListItems: null,
+    filteredVideos: null,
     apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
     userId: process.env.REACT_APP_USER_ID,
     channelId: process.env.REACT_APP_CHANNEL_ID,
-    playlistSearch: ""
+    playlistSearch: "",
+    videoSearch: ""
   };
 
   componentDidMount() {
@@ -75,13 +78,14 @@ class App extends Component {
     return posts;
   }
 
-  async handleChange(event) {
+  async filterPlaylists(event) {
     await this.setState({playlistSearch: event.target.value});
-    this.filterPlayLists()
+    this.setState({filteredPlayLists: this.state.playlists.filter(item => item.title.toLowerCase().includes(`${this.state.playlistSearch}`))});
   }
 
-  filterPlayLists() {
-    this.setState({filteredPlayLists: this.state.playlists.filter(item => item.title.toLowerCase().includes(`${this.state.playlistSearch}`))});
+  async filterVideos(event) {
+    await this.setState({videoSearch: event.target.value});
+    this.setState({filteredVideos: this.state.selectedPlayListItems.filter(item => item.title.toLowerCase().includes(`${this.state.videoSearch}`))});
   }
 
   resetSelections() {
@@ -94,7 +98,8 @@ class App extends Component {
   }
 
   render() {
-    const handleChange = this.handleChange.bind(this);
+    const filterPlaylists = this.filterPlaylists.bind(this);
+    const filterVideos = this.filterVideos.bind(this);
     const getSelectedPlaylistItems = this.getSelectedPlaylistItems.bind(this)
     const resetSelections = this.resetSelections.bind(this)
     console.log(this.state)
@@ -109,22 +114,17 @@ class App extends Component {
             <a className="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
           </div>
 
-          
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item"><a href="#" onClick={resetSelections}>My playlists</a></li>
-              {this.state.selectedPlaylist &&
-                <li className="breadcrumb-item"><a href="#">{this.state.selectedPlaylist.title}</a></li>
-              }
-              {/* <li class="breadcrumb-item active" aria-current="page">Data</li> */}
-            </ol>
-          </nav>
+          <Breadcrumb
+            selectedPlaylist={this.state.selectedPlaylist}
+            onClick={resetSelections}
+          />
 
           {!this.state.selectedPlaylist &&
           <>
-            <PlayListFilter
-              onChange={handleChange}
+            <Filter
+              onChange={filterPlaylists}
               value={this.state.playlistSearch}
+              placeholder="Search playlists"
             />
             <div className="row row-cols-4">
               {this.state.filteredPlayLists ? 
@@ -143,16 +143,23 @@ class App extends Component {
           </>
           }
 
-          {this.state.selectedPlayListItems &&   
-          <div className="row">
-            <div className="col-10 offset-1 border bg-light">
-              <VideoEmbed
-                  key="x"
-                  size="large"
-                  item={this.state.selectedPlayListItems[0]}>
-              </VideoEmbed>
+          {this.state.selectedPlayListItems &&
+          <>
+            <Filter
+              onChange={filterVideos}
+              value={this.state.videoSearch}
+              placeholder="Search videos"
+            />
+            <div className="row">
+              <div className="col-10 offset-1 border bg-light">
+                <VideoEmbed
+                    key="x"
+                    size="large"
+                    item={this.state.selectedPlayListItems[0]}>
+                </VideoEmbed>
+              </div>
             </div>
-          </div>
+          </>
           }
 
           <div className="row row-cols-4">
