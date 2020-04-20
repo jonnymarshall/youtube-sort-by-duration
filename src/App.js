@@ -6,15 +6,15 @@ import VideoEmbed from './components/VideoEmbed'
 import PlaylistVideos from './components/PlaylistVideos'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import styled from 'styled-components'
-import videoEmbed from './components/VideoEmbed'
+import PlayListFilter from './components/PlaylistFilter'
 
 
 
 class App extends Component {
   state = {
     playlists: [],
+    filteredPlayLists: null,
     selectedPlayListItems: [],
-    playlistSelected: false,
     apiKey: process.env.REACT_APP_YOUTUBE_API_KEY,
     userId: process.env.REACT_APP_USER_ID,
     channelId: process.env.REACT_APP_CHANNEL_ID,
@@ -51,9 +51,9 @@ class App extends Component {
       
       // Waits for all promises above to resolve before returning data
       Promise.all(promises)
-      .then(actualData => {
+      .then(finalData => {
         // Set the state
-        this.setState({ selectedPlayListItems: actualData})
+        this.setState({ selectedPlayListItems: finalData})
       })
     });
   }
@@ -64,12 +64,18 @@ class App extends Component {
     return posts;
   }
 
-  handleChange(event) {
-    this.setState({playlistSearch: event.target.value});
+  async handleChange(event) {
+    await this.setState({playlistSearch: event.target.value});
+    this.filterPlayLists()
+  }
+
+  filterPlayLists() {
+    this.setState({filteredPlayLists: this.state.playlists.filter(item => item.title.toLowerCase().includes(`${this.state.playlistSearch}`))});
   }
 
   render() {
     this.handleChange = this.handleChange.bind(this);
+    this.getSelectedPlaylistItems = this.getSelectedPlaylistItems.bind(this)
     return (
       <div className="App">
         <div className="container">
@@ -80,26 +86,30 @@ class App extends Component {
             <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
             <a className="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
           </div>
-          <input
-            class="form-control form-control-lg"
-            type="text" placeholder="Search playlists..."
+          
+          <PlayListFilter
             onChange={this.handleChange}
             value={this.state.playlistSearch}
-          >
-          </input>
+          />
+
           <div className="row row-cols-4">
-            {this.state.playlists &&
-            <ItemsList
-              key="1"
-              items={this.state.playlists}
-              onClick={this.getSelectedPlaylistItems.bind(this)}>
-            </ItemsList>
+            {this.state.filteredPlayLists ? 
+              <ItemsList
+                key="1"
+                items={this.state.filteredPlayLists}
+                onClick={this.getSelectedPlaylistItems}>
+              </ItemsList> :
+              <ItemsList
+                key="1"
+                items={this.state.playlists}
+                onClick={this.getSelectedPlaylistItems}>
+              </ItemsList>
             }
           </div>
 
           {this.state.selectedPlayListItems.length > 0 &&   
-          <div class="row">
-            <div class="col-8 offset-2 border bg-light">
+          <div className="row">
+            <div className="col-8 offset-2 border bg-light">
               <VideoEmbed
                   key="x"
                   item={this.state.selectedPlayListItems[0]}>

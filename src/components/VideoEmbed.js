@@ -17,7 +17,7 @@ export default class VideoEmbed extends Component {
           key={item.id}
           duration={moment.duration(item.duration).asMilliseconds()}
           src={`https://www.youtube.com/embed/${item.id}`}
-          frameborder="0"
+          frameBorder="0"
           allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen="true"
           webkitallowfullscreen="true"
