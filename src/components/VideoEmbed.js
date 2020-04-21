@@ -18,7 +18,7 @@ export default class VideoEmbed extends Component {
         <li className="media">
         <div>
           <img src={item.thumbnail} className="mr-3" alt="..."></img>
-          <h3>{moment.duration(item.duration).minutes()} minutes</h3>
+          <h3>{Math.round(moment.duration(item.duration).asMinutes())} minutes</h3>
         </div>
 
           <DetailsBlock className="media-body">

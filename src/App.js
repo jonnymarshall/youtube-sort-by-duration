@@ -57,8 +57,6 @@ class App extends Component {
       }
     })
     this.setState({playlists})
-    
-    console.log("entered getplaylistVideos")
 
     axios.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails%2Csnippet&maxResults=50&playlistId=${selectedPlayListId}&key=${this.state.apiKey}`)
     .then(res => res.data.items)
@@ -147,8 +145,7 @@ class App extends Component {
   // orderBy
   toggleOrderBy = async (orderType) => {
     await this.setState({orderBy: orderType})
-    const orderedVideos = await this.state.playlistVideos.sort(this.orderVideos("duration", orderType))
-    console.log(orderedVideos)
+    const orderedVideos = await this.state.filteredVideos.sort(this.orderVideos("duration", orderType))
     this.setState({filteredVideos: orderedVideos})
   }
 
@@ -183,6 +180,7 @@ class App extends Component {
     const toggleOrderBy = this.toggleOrderBy.bind(this)
     const videos = this.state.filteredVideos ? this.state.filteredVideos : this.state.playlistVideos
     const playlists = this.state.filteredPlayLists ? this.state.filteredPlayLists : this.state.playlists
+    this.orderVideos()
     return (
       <div className="App">
         <div className="container">
