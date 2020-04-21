@@ -144,7 +144,8 @@ class App extends Component {
 
   // orderBy
   toggleOrderBy = async (orderType) => {
-    await this.setState({orderBy: orderType})
+    await this.state.filteredVideos === null && this.setState({filteredVideos: this.state.playlistVideos})
+    await this.setState({orderBy: orderType});
     const orderedVideos = await this.state.filteredVideos.sort(this.orderVideos("duration", orderType))
     this.setState({filteredVideos: orderedVideos})
   }
