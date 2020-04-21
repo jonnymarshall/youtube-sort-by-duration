@@ -10,7 +10,7 @@ import Filter from './components/Filter'
 import Breadcrumb from './components/Breadcrumb'
 import Jumbotron from './components/Jumbotron'
 import ActiveVideo from './components/ActiveVideo'
-
+import OrderingButtons from './components/OrderingButtons'
 
 
 class App extends Component {
@@ -28,7 +28,9 @@ class App extends Component {
     selectedVideo: null,
     ///
     playlistSearch: "",
-    videoSearch: ""
+    videoSearch: "",
+    ///
+    orderBy: "shortest"
   };
 
   componentDidMount() {
@@ -99,40 +101,87 @@ class App extends Component {
     this.setState({filteredVideos: this.state.playlistVideos.filter(item => item.title.toLowerCase().includes(`${this.state.videoSearch}`))});
   }
 
-  resetSelections() {
+  selectVideo(selectedVideoId) {
+    this.state.playlistVideos.map((video) => {
+      video.active = false
+      if (video.id === selectedVideoId) {
+        video.active = !video.active
+        this.setState({selectedVideo: video})
+      }
+    })
+  }
+
+  // Clear video and playlist filters
+  resetAllSelections() {
     this.setState({
       selectedPlaylist: null,
       filteredPlayLists: null,
-      playlistVideos: null
+      playlistVideos: null,
     })
-    
+    this.resetVideoSelections()
+  }
+
+  // Clear video filters
+  resetVideoSelections() {
+    this.setState({
+      playlistSearch: null,
+      videoSearch: null,
+      filteredVideos: null,
+      selectedVideo: null
+    })
+  }
+
+  // Builds filter
+  getFilterVariables = () => {
+    if (!this.state.selectedPlaylist) return {
+      onChangeFunc: this.filterPlaylists.bind(this),
+      placeholderText: "Search playlists",
+      inputValue: this.playlistSearch
+    }
+    else return {
+      onChangeFunc: this.filterVideos.bind(this),
+      placeholderText: "Search videos",
+      inputValue: this.videoSearch
+    }
+  }
+
+  // orderBy
+  toggleOrderBy = (orderType) => {
+    this.setState({orderBy: orderType})
   }
 
   render() {
-    const filterPlaylists = this.filterPlaylists.bind(this);
-    const filterVideos = this.filterVideos.bind(this);
     const getplaylistVideos = this.getplaylistVideos.bind(this)
-    const resetSelections = this.resetSelections.bind(this)
+    const resetAllSelections = this.resetAllSelections.bind(this)
+    const resetVideoSelections = this.resetVideoSelections.bind(this)
+    const selectVideo = this.selectVideo.bind(this)
+    const toggleOrderBy = this.toggleOrderBy.bind(this)
     const videos = this.state.filteredVideos ? this.state.filteredVideos : this.state.playlistVideos
     const playlists = this.state.filteredPlayLists ? this.state.filteredPlayLists : this.state.playlists
-    console.log(this.state)
     return (
       <div className="App">
         <div className="container">
           <Jumbotron />
-
           <Breadcrumb
             selectedPlaylist={this.state.selectedPlaylist}
-            onClick={resetSelections}
+            selectedVideo={this.state.selectedVideo}
+            resetVideoSelections={resetVideoSelections}
+            resetAllSelections={resetAllSelections}
           />
-
+          <Filter
+            onChange={this.getFilterVariables().onChangeFunc}
+            placeholder={this.getFilterVariables().placeholderText}
+            value={this.getFilterVariables().inputValue}
+          />
+          {this.state.selectedPlaylist &&
+            <OrderingButtons
+            orderBy={this.state.orderBy}
+            toggleOrderBy={toggleOrderBy}
+            />
+          }
+          
           {!this.state.selectedPlaylist &&
-            <>
-              <Filter
-                onChange={filterPlaylists}
-                value={this.state.playlistSearch}
-                placeholder="Search playlists"
-              />
+            <> 
               <div className="row row-cols-4">
                 {playlists &&
                   <ItemsList
@@ -145,19 +194,13 @@ class App extends Component {
             </>
           }
 
-          {this.state.playlistVideos &&
+          {this.state.selectedVideo &&
           <>
-            <Filter
-              onChange={filterVideos}
-              value={this.state.videoSearch}
-              placeholder="Search videos"
-            />
             <div className="row">
-              <div className="col-10 offset-1 border bg-light">
+              <div className="col-12 border bg-light">
                 <ActiveVideo
                     key="x"
-                    size="large"
-                    item={this.state.playlistVideos[0]}>
+                    item={this.state.selectedVideo}>
                 </ActiveVideo>
               </div>
             </div>
@@ -169,7 +212,8 @@ class App extends Component {
               <VideoEmbed
                 key="2"
                 size="small"
-                item={item}>
+                item={item}
+                onClick={selectVideo}>
               </VideoEmbed> 
             )}
           </ul>

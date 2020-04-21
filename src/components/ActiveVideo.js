@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 
 export default class ActiveVideo extends Component {
-  
   render() {
-    const { item, size } = this.props
-    const height = (size === "large") ? "400px" : "100%"
+    const { item } = this.props
     return (
       <iframe
         key={item.id}
@@ -15,7 +13,7 @@ export default class ActiveVideo extends Component {
         allowFullScreen="true"
         webkitallowfullscreen="true"
         mozallowfullscreen="true"
-        height={height}
+        height="600px"
         width="100%"
         >
       </iframe>

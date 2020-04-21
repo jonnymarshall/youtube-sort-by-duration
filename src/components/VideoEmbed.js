@@ -2,34 +2,31 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import styled from 'styled-components'
 
+const DetailsBlock = styled.div `
+  height: 180px;
+  overflow: scroll;
+`
+
 export default class VideoEmbed extends Component {
-  
   render() {
-    const { item, size } = this.props
+    const { item, size, onClick } = this.props
     const height = (size === "large") ? "400px" : "100%"
     return (
-      <>
+      <div
+      onClick={() => onClick(item.id)}
+      key={item.id}>
         <li class="media">
-          <img src={item.thumbnail} class="mr-3" alt="..."></img>
-          <div class="media-body">
+        <div>
+          <img src={item.thumbnail} className="mr-3" alt="..."></img>
+          <h3>{moment.duration(item.duration).minutes()} minutes</h3>
+        </div>
+
+          <DetailsBlock class="media-body">
             <h5 class="mt-0 mb-1">{item.title}</h5>
-              {item.description}
-          </div>
+            <p>{item.description}</p>
+          </DetailsBlock>
         </li>
-        {/* <iframe
-          key={item.id}
-          duration={moment.duration(item.duration).asMilliseconds()}
-          src={`https://www.youtube.com/embed/${item.id}`}
-          frameBorder="0"
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen="true"
-          webkitallowfullscreen="true"
-          mozallowfullscreen="true"
-          height={height}
-          width="100%"
-          >
-        </iframe> */}
-      </>
+      </div>
     )
   }
 }
