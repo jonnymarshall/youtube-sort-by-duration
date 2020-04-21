@@ -1,11 +1,10 @@
 import React, { Component }  from 'react';
 import axios from 'axios';
 import './App.css';
+import moment from 'moment'
 import ItemsList from './components/ItemsList'
 import VideoEmbed from './components/VideoEmbed'
-import PlaylistVideos from './components/PlaylistVideos'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import styled from 'styled-components'
 import Filter from './components/Filter'
 import Breadcrumb from './components/Breadcrumb'
 import Jumbotron from './components/Jumbotron'
@@ -146,8 +145,34 @@ class App extends Component {
   }
 
   // orderBy
-  toggleOrderBy = (orderType) => {
-    this.setState({orderBy: orderType})
+  toggleOrderBy = async (orderType) => {
+    await this.setState({orderBy: orderType})
+    const orderedVideos = await this.state.playlistVideos.sort(this.orderVideos("duration", orderType))
+    console.log(orderedVideos)
+    this.setState({filteredVideos: orderedVideos})
+  }
+
+  orderVideos(key, order = 'shortest') {
+    return function innerSort(a, b) {
+      console.log("a is", a)
+      console.log("b is", b)
+      let varA = moment.duration(a[key]).asMilliseconds()
+      let varB = moment.duration(b[key]).asMilliseconds()
+  
+      let comparison = 0;
+
+      if (varA > varB) {
+        console.log("var A > var B")
+        console.log("var A is", varA)
+        console.log("var B is", varB)
+        comparison = 1;
+      } else if (varA < varB) {
+        comparison = -1;
+      }
+      return (
+        (order === 'longest') ? (comparison * -1) : comparison
+      );
+    };
   }
 
   render() {
@@ -185,7 +210,6 @@ class App extends Component {
               <div className="row row-cols-4">
                 {playlists &&
                   <ItemsList
-                    key="1"
                     items={playlists}
                     onClick={getplaylistVideos}>
                   </ItemsList>
@@ -208,9 +232,9 @@ class App extends Component {
           }
 
           <ul className="list-unstyled">
-            {videos && videos.map((item) =>   
+            {videos && videos.map((item, index) =>   
               <VideoEmbed
-                key="2"
+                key={index}
                 size="small"
                 item={item}
                 onClick={selectVideo}>

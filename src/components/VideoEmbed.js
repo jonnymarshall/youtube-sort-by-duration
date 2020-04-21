@@ -15,14 +15,14 @@ export default class VideoEmbed extends Component {
       <div
       onClick={() => onClick(item.id)}
       key={item.id}>
-        <li class="media">
+        <li className="media">
         <div>
           <img src={item.thumbnail} className="mr-3" alt="..."></img>
           <h3>{moment.duration(item.duration).minutes()} minutes</h3>
         </div>
 
-          <DetailsBlock class="media-body">
-            <h5 class="mt-0 mb-1">{item.title}</h5>
+          <DetailsBlock className="media-body">
+            <h5 className="mt-0 mb-1">{item.title}</h5>
             <p>{item.description}</p>
           </DetailsBlock>
         </li>
